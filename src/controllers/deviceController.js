@@ -11,7 +11,6 @@ const router = express.Router();
 router.use(authMiddleware); 
 
 router.get('/', async (req, res) => {
-    console.log("oiii2");
     try {
         const devices = await Device.find(); 
         return res.send({ devices }); 
@@ -22,7 +21,6 @@ router.get('/', async (req, res) => {
 }); 
 
 router.get('/:deviceId', async (req, res) => {
-    console.log("oiii3");
     try {
         const device = await Device.findById(req.params.deviceId); 
         return res.send({device})

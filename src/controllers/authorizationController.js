@@ -17,6 +17,15 @@ router.get('/', async (req, res) => {
      
 });
 
+router.get('/:authorizationId', async (req, res) => {
+    try {
+        const authorization = await Device.findById(req.params.authorizationId); 
+        return res.send({authorization})
+    } catch (err) {
+        return res.status(400).send({error: 'Error loading authorization'}); 
+    }
+});
+
 router.get('/devices', async (req, res) => {
     try {
         const results = await Authorization.find({user: req.userId}).populate('device');
