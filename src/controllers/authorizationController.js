@@ -14,16 +14,7 @@ router.get('/', async (req, res) => {
     } catch (err) {
         return res.status(400).send({error: 'Error loading authorizations'}); 
     }
-     
-});
 
-router.get('/:authorizationId', async (req, res) => {
-    try {
-        const authorization = await Device.findById(req.params.authorizationId); 
-        return res.send({authorization})
-    } catch (err) {
-        return res.status(400).send({error: 'Error loading authorization'}); 
-    }
 });
 
 router.get('/devices', async (req, res) => {
@@ -36,16 +27,38 @@ router.get('/devices', async (req, res) => {
                 device_id: results[i].device._id,
                 name: results[i].device.name
             }; 
-                
+
         }
         //console.log( authorizations ); 
         return res.send({ authorizations }); 
     } catch (err) {
         return res.status(400).send({error: 'Error loading authorizations'}); 
     }
-     
+
 });
 
+router.put('/:authorizationId', async (req, res) => {
+    
+    try {
+        console.log(req.params.authorizationId);
+        const result = await Authorization.findById(req.params.authorizationId).populate('device').populate('user'); 
+        let authorization = [];
+        authorization = { 
+            id: result._id, 
+            enabled: result.enabled,
+            device_id: result.device._id,
+            device_name: result.device.name,
+            device_topic_publish: result.device.topicToWrite,
+            device_topic_subscribe: result.device.topicToRead,
+            user_id: result.user._id,
+            user_name: result.user.userName 
+        }; 
+        
+        return res.send({ authorization})
+    } catch (err) {
+        return res.status(400).send({error: 'Error get authorization'}); 
+    }
+});
 
 router.get('/full', async (req, res) => {
     console.log("teste");
@@ -63,14 +76,14 @@ router.get('/full', async (req, res) => {
                 user_id: results[i].user._id,
                 user_name: results[i].user.userName 
             }; 
-                
+
         }
-        
+
         return res.send({ authorizations }); 
     } catch (err) {
         return res.status(400).send({error: 'Error loading authorizations'}); 
     }
-     
+
 });
 
 router.post('/', async (req, res) => {
@@ -93,4 +106,3 @@ router.delete('/:authorizationId', async (req, res) => {
 
 
 module.exports = app => app.use('/authorization', router); 
-

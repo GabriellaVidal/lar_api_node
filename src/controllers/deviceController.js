@@ -70,7 +70,7 @@ router.put('/movimentar', async  (req, res) => {
             }
         );
 
-        // console.log(client);
+        console.log(client);
         //When passing async functions as event listeners, make sure to have a try catch block
         const doStuff = async () => {
             try {
@@ -147,8 +147,6 @@ router.post('/:deviceId/', async  (req, res) => {
 
 
 router.put('/:deviceId', async (req, res) => {
-console.log("oiii3666212");
-    
     try {
         Device.findById(req.params.deviceId, (err, device) => {
             // This assumes all the fields of the object is present in the body.
