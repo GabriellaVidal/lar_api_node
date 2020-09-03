@@ -39,6 +39,67 @@ router.post('/', async (req, res) => {
     }
 });
 
+router.put('/retornoCarrinho', async  (req, res) => {
+    console.log("retornoCarrinho")
+    let topicSubscribe; 
+    let result = "ok"; 
+    // console.log(req.body.user);
+    // console.log(req.body.device);
+    try {
+        const device = await Device.findById(req.body.device);
+        topicSubscribe = device.topicToRead;  
+        // console.log(device);
+        console.log(topicSubscribe);
+    } catch (err) {
+        return res.status(400).send({error: 'Error loading device'}); 
+    } 
+
+    console.log("Valor "+topicSubscribe+" "+mqttConfig.mqtt_user+" "+
+        mqttConfig.mqtt_password); 
+    try {
+        
+
+        const client = MQTT.connect(mqttConfig.mqtt_server,
+            {
+                clientId: req.body.user,
+                username: mqttConfig.mqtt_user,
+                password: mqttConfig.mqtt_password,
+            }
+        );
+
+        console.log(client);
+        //When passing async functions as event listeners, make sure to have a try catch block
+        const doStuff = async () => {
+            try {
+                console.log("oiisub");
+                client.subscribe(topicSubscribe); 
+                client.on("message", function (topic, payload){
+                    console.log([topic, payload].join(": "))
+                    const mensagem = [payload].join()
+                    res.send({ subscribe: mensagem })
+                    client.end()
+                })
+                // await client.end();
+                // This line doesn't run until the client has disconnected without error
+            } catch (e){
+                // Do something about it!
+                result = 'Error on connecting and subscribe';
+                console.log(e.stack);
+                process.exit();
+                
+            }
+        }
+
+        client.on("connect", doStuff);
+
+
+        // return res.send({ subscribe: result }); 
+            
+    } catch (err) {
+        console.log(err);
+        return res.status(400).send({error: 'Error on subscribe'}); 
+    }
+});
 
 
 router.put('/movimentar', async  (req, res) => {
