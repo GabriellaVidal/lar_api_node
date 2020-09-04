@@ -112,8 +112,9 @@ router.put('/movimentar', async  (req, res) => {
     try {
         const device = await Device.findById(req.body.device);
         topicPublish = device.topicToWrite;  
+        topicSubscribe = device.topicToRead;  
         // console.log(device);
-        console.log(topicPublish);
+        // console.log(topicPublish);
     } catch (err) {
         return res.status(400).send({error: 'Error loading device'}); 
     } 
@@ -130,15 +131,22 @@ router.put('/movimentar', async  (req, res) => {
                 password: mqttConfig.mqtt_password,
             }
         );
-
-        console.log(client);
+        
         //When passing async functions as event listeners, make sure to have a try catch block
         const doStuff = async () => {
             try {
                 console.log("oiipub");
-                await client.publish(topicPublish, value); 
+                client.publish(topicPublish, value); 
                 // This line doesn't run until the server responds to the publish
-                await client.end();
+                client.subscribe(topicSubscribe); 
+                console.log("oiiSub");
+                client.on("message", function (topic, payload){
+                    // console.log([topic, payload].join(": "))
+                    const mensagem = [payload].join()
+                    res.send({ subscribe: mensagem });
+                    client.end();
+                })
+                // await client.end();
                 // This line doesn't run until the client has disconnected without error
             } catch (e){
                 // Do something about it!
@@ -150,7 +158,7 @@ router.put('/movimentar', async  (req, res) => {
         }
 
         client.on("connect", doStuff);
-        return res.send({ result: result }); 
+        // return res.send({ result: result }); 
             
     } catch (err) {
         console.log(err);
