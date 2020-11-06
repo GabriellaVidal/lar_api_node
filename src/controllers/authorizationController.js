@@ -24,6 +24,7 @@ router.get('/devices', async (req, res) => {
         // selecionado os atributos da resposta 
         for (let i = 0; i < results.length; i++){
             authorizations[i] = { 
+                id: results[i]._id,
                 device_id: results[i].device._id,
                 name: results[i].device.name
             }; 
